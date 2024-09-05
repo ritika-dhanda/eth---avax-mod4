@@ -5,7 +5,6 @@
 // 4.Checking token balance: Players should be able to check their token balance at any time.
 // 5.Burning tokens: Anyone should be able to burn tokens, that they own, that are no longer needed.
 
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -16,6 +15,9 @@ contract DegenToken is ERC20, Ownable {
 
     // Mapping to store the token cost associated with each prize
     mapping(uint256 => uint256) private prizeCosts;
+
+    // Mapping to store the redeemed prizes for each player
+    mapping(address => uint256[]) private playerPrizes;
 
     // Constructor function, executed once upon contract deployment
     constructor(address initialOwner) ERC20("Degtoken", "DGN") Ownable(initialOwner) {
@@ -47,7 +49,10 @@ contract DegenToken is ERC20, Ownable {
         // Burn tokens equal to the cost of the prize
         _burn(msg.sender, cost);
 
-        // Log the redemption
+        // Assign the redeemed prize to the player
+        playerPrizes[msg.sender].push(prizeId);
+
+        // Emit the redemption event
         emit PrizeRedeemed(msg.sender, prizeId, cost);
     }
 
@@ -67,6 +72,11 @@ contract DegenToken is ERC20, Ownable {
         return balanceOf(account);
     }
 
+    // Function to check redeemed prizes for a player
+    function checkRedeemedPrizes(address player) public view returns (uint256[] memory) {
+        return playerPrizes[player];
+    }
+
     // Function to burn tokens, reducing the sender's balance
     function burnTokens(uint256 amount) public {
         // Validate the amount to burn
@@ -80,3 +90,7 @@ contract DegenToken is ERC20, Ownable {
     // Event emitted upon successful prize redemption
     event PrizeRedeemed(address indexed account, uint256 prizeId, uint256 cost);
 }
+
+
+        
+     
